@@ -7,7 +7,7 @@ class Phrase {
         for a phrase should look like when the game starts. When the player correctly guesses a letter,
         the empty box is replaced with a the matched letter (see the showMatchedLetter() method below. 
         Make sure the phrase displayed on the screen doesn't include spaces. */
-
+        
     }
     checkLetter() {
         // checks to see if letter selected by player matches a letter in the phrase.
