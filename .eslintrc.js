@@ -4,6 +4,10 @@ module.exports = {
         "es6": true,
         "jquery": true
     },
+    "globals": {
+        "Game": true,
+        "Phrase": true
+    },
     "extends": "eslint:recommended",
     "parserOptions": {
         "ecmaVersion": 2018
