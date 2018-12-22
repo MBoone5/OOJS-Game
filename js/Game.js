@@ -1,12 +1,10 @@
 // Custom Game class for OOJS Game Project\
-// globally declard variable for access by multiple methods
-const overlay = document.getElementById('#overlay');
 
 class Game {
-    constructor(phrases, missed = 0, activePhrase = null) {
+    constructor(phrases) {
         /* used to track the number of missed guesses by the player.
         The initial value is 0, since no guesses have been made at the start of the game. */
-        this.missed = missed;
+        this.missed = 0;
 
         /* an array of five Phrase objects to use with the game.
         A phrase should only include letters and spaces— no numbers,
@@ -16,20 +14,20 @@ class Game {
         /* This is the Phrase object that’s currently in play.The initial value is null.
         Within the startGame() method, this property will be set to the Phrase object 
         returned from a call to the getRandomPhrase() method. */
-        this.activePhrase = activePhrase;
+        this.activePhrase = null;
     }
-    
     // method to randomly choose one of the phrases for the game
     getRandomPhrase() {
         // generates a random number 0-4 to be used as the index for accessing one of the phrases 
-        return this.phrases[Math.floor(Math.random() * 4)];
+        // TODO: Refactor once phrase class is built
+        return this.phrases[Math.floor(Math.random() * 5)];
     }
-
+    // method for changing overlay visibilty
     overlayVisibilty(state = 'show') {
         if (state === 'hide') {
-            overlay.style.display = 'none';
+            document.getElementById('#overlay').style.display = 'none';
         } else {
-            overlay.style.display = 'block';
+            document.getElementById('#overlay').style.display = 'flex';
         }
     }
     // method to start the game
@@ -65,13 +63,12 @@ class Game {
         // conditional for changes based on if the games was lost or won
         if (reason === 'won') {
             overlayMessage.innerHTML('Nice Work! Keep It Up!');
-            overlay.className = 'win';
+            document.getElementById('#overlay').className = 'win';
         } else {
             overlayMessage.innerHTML('You got this! Give It Another Try!');
-            overlay.className = 'lose';
+            document.getElementById('#overlay').className = 'lose';
         }
-
-        
+  
     }
     removeLife() {
         // method for removing a life if a miss occurs, and ending the game if no lives are left
