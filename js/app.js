@@ -1,6 +1,6 @@
 // Custom JavaScript for OOJS Game Project
 // adding the phrases
-let phraseArray = ['Hello', 'Good Bye', 'Good Morning', 'Good Afternoon', 'Good Night'];
+let phraseArray = ['A Dime A Dozen', 'Call It A Day', 'Easy Does It', 'Go For Broke', 'In A Pickle'];
 let phraseObjects = phraseArray.map(phrase => new Phrase(phrase));
 
 // instantiating the Game class
