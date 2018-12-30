@@ -1,6 +1,5 @@
 // Custom Game class for OOJS Game Project\
 // global variables for access by multiple methods
-const overlay = document.getElementById('overlay');
 let lifeElements = [...document.querySelectorAll('.tries>img')];
 let keyboard = [...document.querySelectorAll('.key')];
 
@@ -50,7 +49,7 @@ class Game {
     // method to start the game
     startGame() {
         // hiding the initial overlay
-        this.overlayVisibilty('hide');
+        resetDisplay();
 
         // setting the active phrase to a randomly chosen phrase
         this.activePhrase = this.getRandomPhrase();
@@ -83,8 +82,9 @@ class Game {
     gameOver(reason = 'lost') {
         // declaring the overlay message element
         const overlayMessage = document.getElementById('game-over-message');
+
         // showing the overlay
-        this.overlayVisibilty();
+        resetDisplay('show');
 
         // conditional for changes based on if the games was lost or won
         if (reason === 'won') {
@@ -112,46 +112,10 @@ class Game {
             this.gameOver();
         }
     }
-    keyboardInteraction(element, guess){
-        // stopping the event occuring on the spaces around the letters
-        if (/^[a-z]$/i.test(guess)) {
-            // disabling the chosen letter
-            element.setAttribute('disabled', true);
-
-            //  .indexOf is used rather than .includes for browser compatability
-            if (this.activePhrase.phrase.indexOf(guess, 0) !== -1) {
-                element.classList.add('chosen');
-            } else {
-                element.classList.add('wrong');
-                this.removeLife();
-            }
-        } else;
-    }
     // method for managing user interaction/input
-    handleInteraction(method, input) {
-        // if the input comes from the key elements
-        if (method === 'dom') {
-            // element(s) representing the guessed letter
-            let inputLetter = input;
-           
-            // string value of the guessed letter
-            let letterGuess = input.innerHTML;
-            
-            // qwerty functionality + life counter
-            this.keyboardInteraction(inputLetter, letterGuess);
-
-        } else { // if the input comes from the physical keyboard
-            // finding the matching input letter element through traversal
-            let inputLetter = keyboard.filter(element => element.textContent === input)[0];
-            // string value of the guessed letter
-            let letterGuess = input;
-
-
-            // qwerty functionality + life counter
-            this.keyboardInteraction(inputLetter, letterGuess);
-        }
-
-
+    handleInteraction(input) {
+        // checing if the letter is in the phrase
+        this.activePhrase.checkLetter(input);
 
         // checking for a win
         if (this.checkForWin()) {
