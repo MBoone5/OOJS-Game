@@ -1,4 +1,8 @@
 // Custom Game class for OOJS Game Project\
+// global variables for access by multiple methods
+const overlay = document.getElementById('overlay');
+let lifeElements = [...document.querySelectorAll('.tries>img')];
+let keyboard = [...document.querySelectorAll('.key')];
 
 class Game {
     constructor(phrases) {
@@ -18,17 +22,30 @@ class Game {
     }
     // method to randomly choose one of the phrases for the game
     getRandomPhrase() {
-        // generates a random number 0-4 to be used as the index for accessing one of the phrases 
-        // TODO: Refactor once phrase class is built
+        // generates a random number 0-4 to be used as the index for accessing one of the phrases
         return this.phrases[Math.floor(Math.random() * 5)];
     }
     // method for changing overlay visibilty
     overlayVisibilty(state = 'show') {
         if (state === 'hide') {
-            document.getElementById('#overlay').style.display = 'none';
+            overlay.style.display = 'none';
         } else {
-            document.getElementById('#overlay').style.display = 'flex';
+            overlay.style.display = 'flex';
         }
+    }
+    // method to reset the game functionality
+    resetGame(){
+        // resetting the keyboard
+        keyboard.forEach(key => {
+            key.className = 'key';
+            key.removeAttribute('disabled');
+        });
+
+        // resetting the life
+        lifeElements.forEach(life => life.src = 'images/liveHeart.png');
+
+        this.missed = 0;
+
     }
     // method to start the game
     startGame() {
@@ -38,44 +55,56 @@ class Game {
         // setting the active phrase to a randomly chosen phrase
         this.activePhrase = this.getRandomPhrase();
 
-        /* TODO: Build Phrase class, then call addPhraseToDisplay on the active phrase; Might have to refactor so that
-        the phrases are Phrase class objects */
+        // adding the phrase to the display
+        this.activePhrase.addPhraseToDisplay();
+
+        if (document.getElementById('overlay').className !== 'start'){
+            this.resetGame();  
+        }
     }
+    // method to check if the game has been won
     checkForWin() {
-        // method to check if the game has been won
+        // regexp to test if hide is in the class list of the letter element
         const hideRegExp = /hide/;
-        const phraseLetters = document.querySelectorAll('.letter');
-        
-        phraseLetters.filter((letter) => hideRegExp.test(letter.className));
-        if (phraseLetters.length > 0) {
+
+        // creating an array of the hidden letter elements
+        const hiddenLetters = [...document.querySelectorAll('.letter')]
+            .filter((letter) => hideRegExp.test(letter.className));
+
+        // checking if there are any more hidden letters
+        if (hiddenLetters.length > 0) {
+            // returns false if there are still some letters hidden
             return false;
         }else{
             return true;
         }
     }
+    // method to end the game, and make changes accordingly based on the reason
     gameOver(reason = 'lost') {
-        // method to end the game, and make changes accordingly based on the reason
+        // TODO: Reset game by removing the phrase, setting missed to 0 etc.
+        
         // declaring the overlay message element
-        const overlayMessage = document.getElementById('#game-over-message');
+        const overlayMessage = document.getElementById('game-over-message');
         // showing the overlay
         this.overlayVisibilty();
 
         // conditional for changes based on if the games was lost or won
         if (reason === 'won') {
-            overlayMessage.innerHTML('Nice Work! Keep It Up!');
-            document.getElementById('#overlay').className = 'win';
+            overlayMessage.innerHTML = 'Nice Work! Keep It Up!';
+            overlay.className = 'win';
         } else {
-            overlayMessage.innerHTML('You got this! Give It Another Try!');
-            document.getElementById('#overlay').className = 'lose';
+            overlayMessage.innerHTML = 'You got this! Give It Another Try!';
+            overlay.className = 'lose';
         }
-  
+        
+        // changing 'start game' to 'reset game'
+        document.getElementById('btn__reset').innerHTML = 'Reset Game';
     }
+    // method for removing a life if a miss occurs, and ending the game if no lives are left
     removeLife() {
-        // method for removing a life if a miss occurs, and ending the game if no lives are left
-        /* selects the first element with the liveHeart.png, and replaces it with the
+        /* selects the an element with the liveHeart.png, selects it using the index of the misses, and replaces it with the
         lostHeart.png */
-        document.querySelector('.tries[src=images/liveHeart.png]')
-            .setAttribute('src', 'images/lostHeart.png');
+        lifeElements[this.missed].src = 'images/lostHeart.png';
         
         // incrementing the missed lives 
         this.missed += 1;
@@ -85,22 +114,52 @@ class Game {
             this.gameOver();
         }
     }
+    keyboardInteraction(element, guess){
+        // stopping the event occuring on the spaces around the letters
+        if (/^[a-z]$/i.test(guess)) {
+            // disabling the chosen letter
+            element.setAttribute('disabled', true);
+
+            //  .indexOf is used rather than .includes for browser compatability
+            if (this.activePhrase.phrase.indexOf(guess, 0) !== -1) {
+                element.classList.add('chosen');
+            } else {
+                element.classList.add('wrong');
+                this.removeLife();
+            }
+        } else;
+    }
     // method for managing user interaction/input
-    handleInteraction(inputLetter) {
-        let letterGuess = inputLetter.innerHTML;
+    // TODO: Build functionality for keyboard input
+    handleInteraction(method, input) {
+        // if the input comes from the key elements
+        if (method === 'dom') {
+            // element(s) representing the guessed letter
+            let inputLetter = input;
+           
+            // string value of the guessed letter
+            let letterGuess = input.innerHTML;
+            
+            // qwerty functionality + life counter
+            this.keyboardInteraction(inputLetter, letterGuess);
 
-        // disabling the chosen letter TODO: Build disabled class for letters
-        inputLetter.classList.add('disabled');
+        } else { // if the input comes from the physical keyboard
+            // finding the matching input letter element through traversal
+            let inputLetter = keyboard.filter(element => element.textContent === input)[0];
+            // string value of the guessed letter
+            let letterGuess = input;
 
-        //  .indexOf is used rather than .includes for browser compatability
-        if (this.activePhrase.indexOf(letterGuess, 0) !== -1) {
-            inputLetter.classList.add('chosen');
-            if (this.checkForWin()) {
-                this.gameOver('won');
-            }else;
-        }else{
-            inputLetter.classList.add('wrong');
-            this.removeLife();
+
+            // qwerty functionality + life counter
+            this.keyboardInteraction(inputLetter, letterGuess);
         }
+
+
+
+        // checking for a win
+        if (this.checkForWin()) {
+            this.gameOver('won');
+        } else;
+
     }
 }
