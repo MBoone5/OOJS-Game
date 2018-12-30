@@ -81,8 +81,6 @@ class Game {
     }
     // method to end the game, and make changes accordingly based on the reason
     gameOver(reason = 'lost') {
-        // TODO: Reset game by removing the phrase, setting missed to 0 etc.
-        
         // declaring the overlay message element
         const overlayMessage = document.getElementById('game-over-message');
         // showing the overlay
@@ -130,7 +128,6 @@ class Game {
         } else;
     }
     // method for managing user interaction/input
-    // TODO: Build functionality for keyboard input
     handleInteraction(method, input) {
         // if the input comes from the key elements
         if (method === 'dom') {
